@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hawk.admin.orm.dao.UserMapper">
+    <!--自定义sql-->
+    <select id="selectByName"
+            parameterType="String"
+            resultType="com.hawk.admin.orm.entity.User">
+        SELECT
+        *
+        FROM t_user
+        <where>
+            <if test="name != null and name != ''">
+                name = #{name,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+</mapper>
