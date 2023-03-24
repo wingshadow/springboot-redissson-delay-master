@@ -29,7 +29,7 @@ public class RedisDelayQueueController {
     public ResponseEntity delay() {
 
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 100; i < 1000; i++) {
             Map<String, String> map1 = new HashMap<>();
             map1.put("orderId", i + "0");
             map1.put("remark", "订单支付超时，自动取消订单");

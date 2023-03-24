@@ -1,7 +1,5 @@
 package com.hawk.admin.controller.queue;
 
-import com.hawk.admin.delay.RedisDelayQueueEnum;
-import com.hawk.admin.delay.RedisDelayQueueUtil;
 import com.hawk.admin.queue.RedisQueueUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @program: springboot-redissson-delay-master
