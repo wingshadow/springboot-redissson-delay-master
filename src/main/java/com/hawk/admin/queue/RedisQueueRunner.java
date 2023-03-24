@@ -44,7 +44,6 @@ public class RedisQueueRunner implements CommandLineRunner {
                             log.info("{}", value.toString());
                         });
                     }
-                    TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException e) {
                     log.error("(Redisson延迟队列监测异常中断) {}", e.getMessage());
                 }
