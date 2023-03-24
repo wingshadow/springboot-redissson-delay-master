@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 public class RedisQueueRunner implements CommandLineRunner {
     @Autowired
     private RedisQueueUtil redisQueueUtil;
-    @Autowired
-    private OrderPaymentTimeout orderPaymentTimeout;
 
     ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 5, 30, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(1000),
@@ -37,18 +35,21 @@ public class RedisQueueRunner implements CommandLineRunner {
     @Async
     @Override
     public void run(String... args) throws Exception {
-        while (true) {
-            try {
-                Object value = redisQueueUtil.getQueue("SAMPLE");
-                if (value != null) {
-                    executorService.execute(() -> {
-                        orderPaymentTimeout.execute((Map) value);
-                    });
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Object value = redisQueueUtil.getQueue("SAMPLE");
+                    if (value != null) {
+                        executorService.execute(() -> {
+                            log.info("{}", value.toString());
+                        });
+                    }
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (InterruptedException e) {
+                    log.error("(Redisson延迟队列监测异常中断) {}", e.getMessage());
                 }
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                log.error("(Redisson延迟队列监测异常中断) {}", e.getMessage());
             }
-        }
+        }).start();
+
     }
 }

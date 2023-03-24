@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * date: 2021/8/27 14:16
  */
 @Slf4j
+@Order(1)
 @Component
 public class RedisDelayQueueRunner implements CommandLineRunner {
     @Autowired
@@ -42,18 +44,21 @@ public class RedisDelayQueueRunner implements CommandLineRunner {
     @Async
     @Override
     public void run(String... args) throws Exception {
-        while (true) {
-            try {
-                Object value = redisDelayQueueUtil.getDelayQueue(RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
-                if (value != null) {
-                    executorService.execute(() -> {
-                        orderPaymentTimeout.execute((Map) value);
-                    });
+        new Thread(()->{
+            while (true) {
+                try {
+                    Object value = redisDelayQueueUtil.getDelayQueue(RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
+                    if (value != null) {
+                        executorService.execute(() -> {
+                            orderPaymentTimeout.execute((Map) value);
+                        });
+                    }
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (InterruptedException e) {
+                    log.error("(Redisson延迟队列监测异常中断) {}", e.getMessage());
                 }
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                log.error("(Redisson延迟队列监测异常中断) {}", e.getMessage());
             }
-        }
+        }).start();
+
     }
 }
