@@ -1,19 +1,13 @@
-package com.hawk.admin.delay;
+package com.hawk.admin.queue;
 
-/**
- * @program: springboot3-mybatis
- * @description:
- * @author: zhb
- * @create: 2023-03-20 10:22
- */
-
+import com.hawk.admin.delay.OrderPaymentTimeout;
+import com.hawk.admin.delay.RedisDelayQueueEnum;
+import com.hawk.admin.delay.RedisDelayQueueUtil;
 import jodd.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -22,29 +16,30 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * description: 启动延迟队列监测扫描
- *
- * @author: shf
- * date: 2021/8/27 14:16
+ * @program: springboot-redissson-delay-master
+ * @description:
+ * @author: zhb
+ * @create: 2023-03-24 10:15
  */
+
 @Slf4j
 @Component
-public class RedisDelayQueueRunner implements CommandLineRunner {
+public class RedisQueueRunner implements CommandLineRunner {
     @Autowired
-    private RedisDelayQueueUtil redisDelayQueueUtil;
+    private RedisQueueUtil redisQueueUtil;
     @Autowired
     private OrderPaymentTimeout orderPaymentTimeout;
 
     ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 5, 30, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(1000),
-            new ThreadFactoryBuilder().setNameFormat("order-delay-%d").get());
+            new ThreadFactoryBuilder().setNameFormat("order-queue-%d").get());
 
     @Async
     @Override
     public void run(String... args) throws Exception {
         while (true) {
             try {
-                Object value = redisDelayQueueUtil.getDelayQueue(RedisDelayQueueEnum.ORDER_PAYMENT_TIMEOUT.getCode());
+                Object value = redisQueueUtil.getQueue("SAMPLE");
                 if (value != null) {
                     executorService.execute(() -> {
                         orderPaymentTimeout.execute((Map) value);
