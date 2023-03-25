@@ -27,18 +27,19 @@ public class RedisTopicRunner implements CommandLineRunner {
     private RedissonClient redissonClient;
     ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 5, 30, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(1000),
-            new ThreadFactoryBuilder().setNameFormat("order-queue-%d").get());
+            new ThreadFactoryBuilder().setNameFormat("order-topic-%d").get());
+
     @Override
     public void run(String... args) throws Exception {
         new Thread(() -> {
             RTopic rTopic = redissonClient.getTopic("EMAIL");
-            executorService.execute(()->{
-                    rTopic.addListener(String.class,new MessageListener<String>() {
-                        @Override
-                        public void onMessage(CharSequence charSequence, String s) {
-                            log.info("{}",s);
-                        }
-                    });
+            executorService.execute(() -> {
+                rTopic.addListener(String.class, new MessageListener<String>() {
+                    @Override
+                    public void onMessage(CharSequence charSequence, String s) {
+                        log.info("msg:{}", s);
+                    }
+                });
             });
 
         }).start();

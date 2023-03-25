@@ -23,7 +23,7 @@ public class RedisTopicController {
     @PostMapping(value = "/add")
     public ResponseEntity addQueue() {
         for (int i = 100; i < 200; i++) {
-            redisTopicUtil.add(i + "0", "EMAIL");
+            redisTopicUtil.add("topic-" + i + "0", "EMAIL");
         }
         return ResponseEntity.ok("suc");
     }
