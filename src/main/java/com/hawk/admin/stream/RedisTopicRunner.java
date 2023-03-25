@@ -1,6 +1,6 @@
 package com.hawk.admin.stream;
 
-import jodd.util.concurrent.ThreadFactoryBuilder;
+import cn.hutool.core.thread.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
@@ -25,21 +25,24 @@ public class RedisTopicRunner implements CommandLineRunner {
 
     @Autowired
     private RedissonClient redissonClient;
-    ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 5, 30, TimeUnit.SECONDS,
+
+    ThreadPoolExecutor executorService = new ThreadPoolExecutor(10, 15, 0, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(1000),
-            new ThreadFactoryBuilder().setNameFormat("order-topic-%d").get());
+            new ThreadFactoryBuilder().setNamePrefix("order-topic-").build());
 
     @Override
     public void run(String... args) throws Exception {
         new Thread(() -> {
             RTopic rTopic = redissonClient.getTopic("EMAIL");
-            executorService.execute(() -> {
-                rTopic.addListener(String.class, new MessageListener<String>() {
-                    @Override
-                    public void onMessage(CharSequence charSequence, String s) {
+
+            rTopic.addListener(String.class, new MessageListener<String>() {
+                @Override
+                public void onMessage(CharSequence charSequence, String s) {
+                    executorService.execute(() -> {
                         log.info("msg:{}", s);
-                    }
-                });
+                    });
+                }
+
             });
 
         }).start();

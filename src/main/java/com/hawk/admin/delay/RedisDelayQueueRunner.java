@@ -37,7 +37,7 @@ public class RedisDelayQueueRunner implements CommandLineRunner {
     @Autowired
     private OrderPaymentTimeout orderPaymentTimeout;
 
-    ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 5, 30, TimeUnit.SECONDS,
+    ThreadPoolExecutor executorService = new ThreadPoolExecutor(10, 15, 0, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(1000),
             new ThreadFactoryBuilder().setNameFormat("order-delay-%d").get());
 
