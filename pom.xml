@@ -34,8 +34,28 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.15.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <!-- 默认是 Spring Data Redis v.2.3.x ,所以排除掉-->
+                    <artifactId>redisson-spring-data-23</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <!-- for Spring Data Redis v.2.2.x -->
+            <artifactId>redisson-spring-data-22</artifactId>
             <version>3.15.0</version>
         </dependency>
 
